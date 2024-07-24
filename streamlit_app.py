@@ -20,11 +20,10 @@ st.set_page_config(
 # Draw the actual page
 
 # Set the title that appears at the top of the page.
-'''
+st.markdown("""
 # :1234: Pixel Importances
-
 This site interactively displays pixel importances for MNIST dataset, provided by modelling pixels in a CNN.
-'''
+""", unsafe_allow_html=True)
 
 pixel_importance_df = pd.read_csv('pixel_importance_1.csv')
 pixel_importance_df["importance"] = 1-pixel_importance_df["acc"]
@@ -38,11 +37,90 @@ classes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, all]
 # Get the unique classes
 classes = ['all'] + list(range(10))
 
+
 # Create a slider for the number of top pixels to show
 num_pixels = st.slider('Number of top pixels to show', min_value=1, max_value=100, value=12)
+show_background = st.checkbox('Show average image in the background')
 
 # Create tabs for each class
 tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs([str(class_) for class_ in classes])
+
+
+
+
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from keras.models import Sequential
+from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
+from keras.utils import to_categorical
+import matplotlib.pyplot as plt
+import time
+from sklearn.metrics import classification_report, accuracy_score
+import struct
+
+def load_mnist_data():
+    def load_mnist_images(filename):
+        with open(filename, 'rb') as f:
+            magic, num, rows, cols = struct.unpack(">IIII", f.read(16))
+            images = np.fromfile(f, dtype=np.uint8).reshape(num, rows, cols)
+        return pd.DataFrame(images.reshape(num, -1))
+
+    def load_mnist_labels(filename):
+        with open(filename, 'rb') as f:
+            magic, num = struct.unpack(">II", f.read(8))
+            labels = np.fromfile(f, dtype=np.uint8)
+        return pd.Series(labels)
+
+    train_images = load_mnist_images('train-images.idx3-ubyte')
+    train_labels = load_mnist_labels('train-labels.idx1-ubyte')
+    test_images = load_mnist_images('t10k-images.idx3-ubyte')
+    test_labels = load_mnist_labels('t10k-labels.idx1-ubyte')
+
+    X = pd.concat([train_images, test_images], ignore_index=True)
+    y = pd.concat([train_labels, test_labels], ignore_index=True)
+
+    return {"data": X, "target": y.astype(np.uint8)}
+
+# Usage:
+mnist = load_mnist_data()
+X, y = mnist["data"], mnist["target"]
+X_nump = X.to_numpy().reshape(70000, 28, 28)
+
+
+#### ----------------- Boilerplate Code functions ----------------- ####
+def prepare_data(X, y, test_size=0.2, subset_fraction=0.2, num_classes=10, random_state=42):
+    """
+    This function splits the data into training and testing sets, and then creates a subset
+    of the training data. It also converts the labels to categorical format.
+
+    Args:
+    - X (DataFrame or ndarray): The input features.
+    - y (DataFrame or ndarray): The input labels.
+    - test_size (float): The proportion of the dataset to include in the test split.
+    - subset_fraction (float): The fraction of the training data to use as a subset.
+    - num_classes (int): The number of classes for categorical conversion.
+    - random_state (int): The seed used by the random number generator.
+
+    Returns:
+    - tuple: A tuple containing the training data, test data, training labels,
+             test labels, training subset data, and training subset labels.
+    """
+    # Splitting the data into training and testing sets
+    X_train, X_test, y_train_prev, y_test_prev = train_test_split(X, y, test_size=test_size, random_state=random_state)
+
+    # Convert the labels to categorical format
+    y_train = to_categorical(y_train_prev, num_classes)
+    y_test = to_categorical(y_test_prev, num_classes)
+
+    # Determine the split index for the training subset
+    split_index = int(len(X_train) * subset_fraction)
+
+    # Use a subset of the training data
+    X_train_subset = X_train[:split_index].copy()  # Create a copy of the subset
+    y_train_subset = y_train[:split_index]
+
+    return X_train, X_test, y_train, y_test, X_train_subset, y_train_subset
 
 def show_important_pixels(pixel_importance_df, num_pixels=12, most_important=True,  val = "all"):
     """
@@ -85,11 +163,26 @@ def show_important_pixels(pixel_importance_df, num_pixels=12, most_important=Tru
     pixel_df = pixel_df.sort_values('importance', ascending=not most_important)
 
     # Create a Plotly Heatmap
-    fig = go.Figure(data=go.Heatmap(
+    fig = go.Figure()
+
+    fig.add_trace(go.Heatmap(
         z=mask,
         colorscale=color,
         hoverongaps = False,
-        colorbar=dict(len=0.5, y=0.5)))  # Place colorbar at the top
+        colorbar=dict(len=0.5, y=0.5))) 
+    # Add the average image to the background if the toggle is turned on
+    if show_background:
+        if val == "all":
+            average_image = X_nump.mean(axis=0)
+        else: 
+            average_image = X_nump[y == val].mean(axis=0)
+        fig.add_trace(go.Heatmap(
+            z=average_image,
+            colorscale='gray',
+            showscale=False,
+            opacity=0.5
+        ))
+
 
     # Invert y-axis
     fig.update_yaxes(autorange="reversed")
@@ -112,11 +205,11 @@ def show_important_pixels(pixel_importance_df, num_pixels=12, most_important=Tru
             scaleanchor="y",
             scaleratio=1,
             fixedrange=True,  # Disable panning and zooming
-            range=[0, 30]  # Set range from 0 to 30
+            range=[0, 28]  # Set range from 0 to 30
         ),
         yaxis=dict(
             fixedrange=True,  # Disable panning and zooming
-            range=[0, 30]  # Set range from 0 to 30
+            range=[0, 28]  # Set range from 0 to 30
         )
     )
 
