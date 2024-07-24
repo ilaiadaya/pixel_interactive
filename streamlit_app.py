@@ -27,7 +27,7 @@ This site interactively displays pixel importances for MNIST dataset, provided b
 '''
 
 
-pixel_importance_df = pd.read_csv('/workspaces/pixel_interactive/pixel_importance_1.csv')
+pixel_importance_df = pd.read_csv('pixel_importance_1.csv')
 pixel_importance_df["importance"] = 1-pixel_importance_df["acc"]
 pixel_accuracy_dict = pixel_importance_df.set_index('pixel_id')['importance'].to_dict()
 print(pixel_accuracy_dict.keys())
