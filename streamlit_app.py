@@ -22,7 +22,8 @@ st.set_page_config(
 # Set the title that appears at the top of the page.
 st.markdown("""
 # :1234: Pixel Importances
-This site interactively displays pixel importances for MNIST dataset, provided by modelling pixels in a CNN.
+This site interactively displays pixel importances for MNIST dataset, provided by modelling pixels in a CNN (for 10% of the dataset).
+        
 """, unsafe_allow_html=True)
 
 pixel_importance_df = pd.read_csv('pixel_importance_1.csv')
