@@ -105,6 +105,10 @@ def show_important_pixels(pixel_importance_df, num_pixels=12, most_important=Tru
             b=0,
             t=0,
             pad=0
+        ),
+        xaxis=dict(
+            scaleanchor="y",
+            scaleratio=1,
         )
     )
 
