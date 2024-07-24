@@ -95,6 +95,8 @@ def show_important_pixels(pixel_importance_df, num_pixels=12, most_important=Tru
     fig.update_yaxes(autorange="reversed")
 
     # Set aspect ratio and remove margins
+
+    # Set aspect ratio and remove margins
     fig.update_layout(
         autosize=False,
         width=600,
@@ -109,6 +111,12 @@ def show_important_pixels(pixel_importance_df, num_pixels=12, most_important=Tru
         xaxis=dict(
             scaleanchor="y",
             scaleratio=1,
+            fixedrange=True,  # Disable panning and zooming
+            range=[0, 30]  # Set range from 0 to 30
+        ),
+        yaxis=dict(
+            fixedrange=True,  # Disable panning and zooming
+            range=[0, 30]  # Set range from 0 to 30
         )
     )
 
@@ -244,3 +252,4 @@ hide_streamlit_style = """
             </style>
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+
