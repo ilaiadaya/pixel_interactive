@@ -76,14 +76,14 @@ def show_important_pixels(pixel_importance_df, num_pixels=12, most_important=Tru
     # Set aspect ratio
     fig.update_layout(
         autosize=False,
-        width=500,
+        width=600,
         height=500,
         margin=dict(
             l=0,
-            r=50,
+            r=0,
             b=0,
             t=0,
-            pad=4
+            pad=0
         )
     )
     st.plotly_chart(fig)
