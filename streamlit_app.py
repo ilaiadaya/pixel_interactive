@@ -237,14 +237,10 @@ with tab10:
         # Display the DataFrame
         st.dataframe(pixel_df)
 
-# Get the pixel importance data
-#pixel_df = show_important_pixels(pixel_importance_df, num_pixels=num_pixels, most_important=True)
-
-# Create a dropdown menu for the ordering method
-#order = st.selectbox('Order by:', ('importance', 'pixel_id', 'x', 'y'))
-
-# Order the DataFrame based on the selected method
-#pixel_df = pixel_df.drop(columns=["index"])
-
-# Display the DataFrame
-#st.dataframe(pixel_df)
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
