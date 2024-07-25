@@ -51,13 +51,9 @@ tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs([str
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from keras.models import Sequential
-from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
-from keras.utils import to_categorical
+
 import matplotlib.pyplot as plt
 import time
-from sklearn.metrics import classification_report, accuracy_score
 import struct
 
 def load_mnist_data():
