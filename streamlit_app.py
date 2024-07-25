@@ -51,9 +51,7 @@ tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs([str
 
 import numpy as np
 import pandas as pd
-
 import matplotlib.pyplot as plt
-import time
 import struct
 
 def load_mnist_data():
